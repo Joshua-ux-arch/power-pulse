@@ -15,15 +15,7 @@ app.use(morgan('dev'));
 app.use(express.json());
 
 app.use(cors({
-  origin: (origin, cb) => {
-    const allowed = [
-      process.env.FRONTEND_URL,
-      'http://localhost:5173',
-      'http://localhost:3000',
-    ];
-    if (!origin || allowed.includes(origin)) return cb(null, true);
-    cb(new Error('CORS blocked'));
-  },
+  origin: '*',
   methods: ['GET', 'POST', 'PATCH'],
   allowedHeaders: ['Content-Type'],
 }));
