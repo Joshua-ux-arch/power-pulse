@@ -10,7 +10,7 @@ export function timeAgo(date) {
 
 export function shareOnWhatsApp(area, status) {
   const emoji = status === 'on' ? '⚡' : '❌'
-  const text = `${emoji} Power Update — ${area}\n${status === 'on' ? 'Light is ON right now' : 'No light currently'}\n\nCheck your area: https://powerpulse.ng`
+  const text = `${emoji} Power Update — ${area}\n${status === 'on' ? 'Light is ON right now' : 'No light currently'}\n\nCheck your area 👉 https://power-pulse-nine.vercel.app`
   window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
 }
 
@@ -22,21 +22,7 @@ export const LAGOS_AREAS = [
   'Oshodi', 'Ogba', 'Ketu', 'Alapere', 'Ogudu',
   'Mile 2', 'Satellite Town', 'Ajegunle', 'Palmgroove',
   'Anthony Village', 'Ojota', 'Isale Eko', 'Badagry',
-  'Sangotedo', 'Awoyaya', 'Igbo Efon', 'Eti Osa',
-  'Abule Egba', 'Ipaja', 'Alimosho', 'Egbeda',
+  'Sangotedo', 'Awoyaya', 'Igbo Efon', 'Abule Egba',
+  'Ipaja', 'Alimosho', 'Egbeda', 'Dopemu', 'Pen Cinema',
+  'Iju', 'Ifako', 'Agboville', 'Berger', 'Oregun',
 ]
-
-// Nigerian LGAs + common area names for better matching
-export const AREA_ALIASES = {
-  'lekki 1': 'Lekki Phase 1',
-  'lekki 2': 'Lekki Phase 2',
-  'vi': 'Victoria Island',
-  'v.i': 'Victoria Island',
-  'v.i.': 'Victoria Island',
-}
-
-export function normalizeArea(raw) {
-  if (!raw) return raw
-  const lower = raw.toLowerCase().trim()
-  return AREA_ALIASES[lower] || raw.trim()
-}

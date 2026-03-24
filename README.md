@@ -1,18 +1,21 @@
-# ⚡ PowerPulse V3
+# ⚡ PowerPulse V4
 
-Real-time electricity tracker for Nigeria. Clean, minimal, intentional design.
-Feels like a real Lagos startup product.
+## What's new in V4
+- ✅ CORS fully fixed — `app.use(cors())` no whitelist
+- 🌙 Dark mode toggle (remembers preference)
+- 😴 Wake-up banner — auto-retries when Render is sleeping
+- 🔥 Animated pulse dot on areas with light
+- 🗺 More Lagos areas in autocomplete
+- 📱 Better mobile touch targets
 
----
-
-## Running locally
+## Run locally
 
 ### Backend
 ```bash
 cd backend
 npm install
 cp .env.example .env
-# Add your MongoDB URI to .env
+# Fill in MONGODB_URI in .env
 npm run dev
 # → http://localhost:5000
 ```
@@ -22,29 +25,29 @@ npm run dev
 cd frontend
 npm install
 cp .env.example .env
+# .env already has your Render URL
 npm run dev
 # → http://localhost:5173
 ```
 
----
-
-## Changing a status (No Light → Light On)
-
-Just press **Light On** again for the same area.
-- Within 3 minutes: updates your existing report directly
-- After 3 minutes: submits a new report which overrides via majority vote
-
----
-
-## Geolocation accuracy
-
-Uses `enableHighAccuracy: true` (real GPS, not IP-based).
-Also uses Nominatim zoom=16 for street-level detail.
-For best results, allow location access on your phone outdoors.
-
----
-
 ## Deploy
 
-- **Backend** → Render.com: root=`backend`, start=`npm start`
-- **Frontend** → Vercel: root=`frontend`, framework=Vite, set `VITE_API_URL`
+### Step 1 — Push to GitHub
+```bash
+git add .
+git commit -m "PowerPulse V4"
+git push
+```
+
+### Step 2 — Render auto-redeploys backend
+- Wait 2 mins, check logs for ✅ MongoDB connected
+
+### Step 3 — Vercel
+- Go to Vercel → your project → Settings → Environment Variables
+- Set VITE_API_URL = https://power-pulse-fj16.onrender.com/api
+- Redeploy
+
+## Keep backend awake (free)
+Sign up at uptimerobot.com and ping:
+https://power-pulse-fj16.onrender.com/health
+every 5 minutes.

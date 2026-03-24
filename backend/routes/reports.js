@@ -2,24 +2,21 @@ const express = require('express');
 const router = express.Router();
 const Report = require('../models/Report');
 
-// GET all reports
 router.get('/', async (req, res) => {
   try {
-    const { area, limit = 60, page = 1 } = req.query;
+    const { area, limit = 60 } = req.query;
     const query = {};
     if (area) query.area = { $regex: new RegExp(`^${area}$`, 'i') };
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    const [reports, total] = await Promise.all([
-      Report.find(query).sort({ createdAt: -1 }).limit(parseInt(limit)).skip(skip).select('-voterIps -reporterIp'),
-      Report.countDocuments(query),
-    ]);
-    res.json({ success: true, reports, total });
+    const reports = await Report.find(query)
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit))
+      .select('-voterIps -reporterIp');
+    res.json({ success: true, reports, total: reports.length });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-// POST new report — also handles status UPDATE for same area
 router.post('/', async (req, res) => {
   try {
     const { area, state, status } = req.body;
@@ -27,9 +24,8 @@ router.post('/', async (req, res) => {
     if (!['on', 'off'].includes(status)) return res.status(400).json({ success: false, error: 'Invalid status' });
 
     const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'unknown';
-
-    // Check if same IP reported same area within 3 minutes — if so UPDATE instead of block
     const threeMinsAgo = new Date(Date.now() - 3 * 60 * 1000);
+
     const recent = await Report.findOne({
       area: { $regex: new RegExp(`^${area}$`, 'i') },
       reporterIp: ip,
@@ -37,9 +33,8 @@ router.post('/', async (req, res) => {
     }).select('+reporterIp');
 
     if (recent) {
-      // Allow update if status changed
       if (recent.status === status) {
-        return res.status(429).json({ success: false, error: 'You already reported this area recently.' });
+        return res.status(429).json({ success: false, error: 'Already reported recently. Wait 3 minutes or change status.' });
       }
       recent.status = status;
       recent.createdAt = new Date();
@@ -58,13 +53,11 @@ router.post('/', async (req, res) => {
   }
 });
 
-// PATCH upvote
 router.patch('/:id/upvote', async (req, res) => {
   try {
     const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'unknown';
     const report = await Report.findById(req.params.id).select('+voterIps');
     if (!report) return res.status(404).json({ success: false, error: 'Not found' });
-
     const alreadyVoted = report.voterIps.includes(ip);
     if (alreadyVoted) {
       report.voterIps = report.voterIps.filter(v => v !== ip);

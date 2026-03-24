@@ -1,21 +1,23 @@
 import React from 'react'
 import { timeAgo, shareOnWhatsApp } from '../utils/helpers'
 
-export default function LiveFeed({ reports, filterArea, onFilterChange, onUpvote, votedIds }) {
+export default function LiveFeed({ reports, filterArea, onFilterChange, onUpvote, votedIds, darkMode }) {
   const areas = [...new Set(reports.map(r => r.area))].slice(0, 8)
   const filtered = filterArea
     ? reports.filter(r => r.area.toLowerCase() === filterArea.toLowerCase())
     : reports
 
+  const card = darkMode ? '#1e1e1c' : '#fff'
+  const border = darkMode ? '#2e2e2a' : '#e5e0d5'
+  const text = darkMode ? '#f4f1ea' : '#111110'
+  const muted = darkMode ? '#6b6b65' : '#9b9589'
+  const chipBg = darkMode ? '#2a2a28' : '#f4f1ea'
+
   return (
     <div className="mb-24">
       <div className="flex items-center justify-between mb-3">
-        <p style={{ fontSize: 11, fontFamily: 'DM Mono', color: '#8a8478', letterSpacing: '0.08em' }}>
-          LIVE FEED
-        </p>
-        <span style={{ fontSize: 11, fontFamily: 'DM Mono', color: '#c4bfb5' }}>
-          {filtered.length} reports
-        </span>
+        <p style={{ fontSize: 10, fontFamily: 'DM Mono', color: '#9b9589', letterSpacing: '0.1em' }}>LIVE FEED</p>
+        <span style={{ fontSize: 11, fontFamily: 'DM Mono', color: muted }}>{filtered.length} reports</span>
       </div>
 
       {/* Filter chips */}
@@ -28,9 +30,9 @@ export default function LiveFeed({ reports, filterArea, onFilterChange, onUpvote
                 onClick={() => onFilterChange(a === 'All' ? '' : (filterArea === a ? '' : a))}
                 className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
                 style={{
-                  background: active ? '#0d0d0d' : '#fff',
-                  color: active ? '#f5f2eb' : '#8a8478',
-                  border: `1.5px solid ${active ? '#0d0d0d' : '#e0dbd0'}`,
+                  background: active ? '#111110' : chipBg,
+                  color: active ? '#c8f135' : muted,
+                  border: `1.5px solid ${active ? '#111110' : border}`,
                 }}>
                 {a}
               </button>
@@ -39,13 +41,13 @@ export default function LiveFeed({ reports, filterArea, onFilterChange, onUpvote
         </div>
       )}
 
-      {/* Feed items */}
+      {/* Feed */}
       <div className="flex flex-col gap-2">
         {filtered.length === 0 ? (
-          <div className="py-12 text-center rounded-2xl" style={{ background: '#fff', border: '1.5px solid #e8e4da' }}>
-            <p style={{ fontSize: 32, marginBottom: 8 }}>📭</p>
-            <p style={{ fontSize: 14, color: '#8a8478' }}>No reports yet.</p>
-            <p style={{ fontSize: 13, color: '#c4bfb5' }}>Be the first to report your area.</p>
+          <div className="py-12 text-center rounded-2xl" style={{ background: card, border: `1.5px solid ${border}` }}>
+            <p style={{ fontSize: 28, marginBottom: 8 }}>📭</p>
+            <p style={{ fontSize: 14, color: muted }}>No reports yet.</p>
+            <p style={{ fontSize: 12, color: muted, opacity: 0.6 }}>Be the first to report your area.</p>
           </div>
         ) : (
           filtered.slice(0, 40).map(report => {
@@ -54,47 +56,41 @@ export default function LiveFeed({ reports, filterArea, onFilterChange, onUpvote
             return (
               <div key={report._id}
                 className="flex items-center gap-3 px-4 py-3 rounded-2xl animate-slide-up"
-                style={{ background: '#fff', border: '1.5px solid #e8e4da' }}>
-
-                {/* Status indicator */}
-                <div className="flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center"
-                  style={{ background: isOn ? '#d4f000' : '#fff0ee' }}>
-                  <span style={{ fontSize: 15 }}>{isOn ? '💡' : '🌑'}</span>
+                style={{ background: card, border: `1.5px solid ${border}` }}>
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: isOn ? 'rgba(200,241,53,0.15)' : 'rgba(255,68,34,0.1)' }}>
+                  <span style={{ fontSize: 14 }}>{isOn ? '💡' : '🌑'}</span>
                 </div>
 
-                {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <p style={{ fontSize: 14, fontWeight: 600, color: '#0d0d0d' }} className="truncate">
+                  <p style={{ fontSize: 14, fontWeight: 600, color: text }} className="truncate">
                     {report.area}
                     {report.state && report.state !== 'Lagos' && (
-                      <span style={{ fontSize: 12, color: '#8a8478', fontWeight: 400 }}>, {report.state}</span>
+                      <span style={{ fontWeight: 400, color: muted }}>, {report.state}</span>
                     )}
                   </p>
-                  <p style={{ fontSize: 11, color: '#8a8478', fontFamily: 'DM Mono' }}>
+                  <p style={{ fontSize: 11, fontFamily: 'DM Mono', color: muted }}>
                     {isOn ? 'Light On' : 'No Light'} · {timeAgo(report.createdAt)}
                   </p>
                 </div>
 
-                {/* Actions */}
                 <div className="flex items-center gap-1.5 flex-shrink-0">
-                  {/* Upvote */}
                   <button onClick={() => onUpvote(report._id)}
-                    className="flex items-center gap-1 px-2 py-1.5 rounded-xl text-xs font-mono font-medium transition-all active:scale-95"
+                    className="flex items-center gap-1 px-2 py-1.5 rounded-xl text-xs font-mono transition-all active:scale-95"
                     style={{
-                      background: voted ? '#0d0d0d' : '#f5f2eb',
-                      color: voted ? '#d4f000' : '#8a8478',
-                      border: `1px solid ${voted ? '#0d0d0d' : '#e0dbd0'}`,
+                      background: voted ? '#111110' : chipBg,
+                      color: voted ? '#c8f135' : muted,
+                      border: `1px solid ${voted ? '#111110' : border}`,
                     }}
-                    title="Confirm this report">
+                    title="Confirm report">
                     <svg width="10" height="10" viewBox="0 0 24 24"
                       fill={voted ? 'currentColor' : 'none'}
                       stroke="currentColor" strokeWidth="2.5">
-                      <path d="M12 19V6M5 13l7-7 7 7"/>
+                      <path d="M12 19V6M5 13l7-7 7 7" />
                     </svg>
                     {report.votes}
                   </button>
 
-                  {/* Share */}
                   <button onClick={() => shareOnWhatsApp(report.area, report.status)}
                     className="w-7 h-7 rounded-xl flex items-center justify-center"
                     style={{ background: 'rgba(37,211,102,0.08)', color: '#25d366' }}>
